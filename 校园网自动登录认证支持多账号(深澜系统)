@@ -1,0 +1,47 @@
+(function() {
+    'use strict';
+
+    var accounts = [
+        { user: '账号1', pwd: '密码1' },
+        { user: '账号2', pwd: '密码2' }
+    ];
+//三个及以上自行添加{},
+    var currentAccountIndex = 0;
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function tryLogin(account) {
+        if (document.querySelector("#logout") !== null) {
+            return;
+        }
+
+        document.querySelector("#username").value = account.user;
+        document.querySelector("#password").value = account.pwd;
+        document.querySelector("#login").click();
+
+        await delay(500);
+
+        var onlineMsg = document.querySelector(".layui-layer-content"); 
+        if (confirmBtn && (messageText.includes("已经在线了") || 
+                               messageText.includes("帐号或密码错误") || 
+                               messageText.includes("用户被禁用") || 
+                               messageText.includes("用户已欠费") ||
+                               messageText.includes("找不到符合条件的产品") ||
+                               messageText.includes("用户不存在"))) {
+            var confirmBtn = document.querySelector(".layui-layer-btn0");
+            if (confirmBtn) {
+                confirmBtn.click();
+                await delay(1000);
+                currentAccountIndex++;
+                if (currentAccountIndex < accounts.length) {
+                    tryLogin(accounts[currentAccountIndex]);
+                }
+            }
+        }
+    }
+
+    tryLogin(accounts[currentAccountIndex]);
+
+})();
